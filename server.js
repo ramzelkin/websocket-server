@@ -1,18 +1,33 @@
 const WebSocket = require('ws');
 const wsServer = new WebSocket.Server({port: 9000});
 
-wsServer.on('connection', onConnect);
+let currencies;
 
+  wsServer.on('connection', onConnect);
+  function onConnect(wsClient) {
+    console.log('connect');
+    // wsClient.send('Привет');
+    wsClient.on('message', function(message) {
+        if (message.type === "check") {
+          console.log(currencies);
 
-function onConnect(wsClient) {
-    console.log('Новый пользователь');
-    // отправка приветственного сообщения клиенту
-    wsClient.send('Привет');
-  wsClient.on('message', function(message) {
-      /* обработчик сообщений от клиента */
-    }
-  wsClient.on('close', function() {
-      // отправка уведомления в консоль
-      console.log('Пользователь отключился');
-    }
+        }
+        console.log(message);
+
+        wsClient.send(currencies);
+    });
+    wsClient.on('close', function() {
+        console.log('Пользователь отключился');
+    });
   }
+
+
+
+  const request = require('request');
+
+  request('https://www.nbrb.by/api/exrates/currencies', { json: true }, (err, res, body) => {
+    if (err) { return console.log(err); }
+    
+    currencies = body;
+  });
+    
